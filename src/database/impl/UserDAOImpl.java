@@ -74,14 +74,14 @@ public class UserDAOImpl implements UserDAO {
         while (rst.next()) {
             usersList.add(
                     new User(
-                            rst.getString(1),
-                            rst.getString(2),
-                            rst.getString(3),
-                            rst.getString(4),
-                            rst.getString(5),
-                            rst.getString(6),
-                            rst.getString(7),
-                            rst.getString(8)
+                            rst.getString("user_name"),
+                            rst.getString("password"),
+                            rst.getString("uname"),
+                            rst.getString("date_of_birth"),
+                            rst.getString("gender"),
+                            rst.getString("address"),
+                            rst.getString("nic"),
+                            rst.getString("contact")
                     )
             );
         }
@@ -90,20 +90,20 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public User get(String username) throws SQLException {
-        String sql = "SELECT * FROM users WHERE username=?";
+        String sql = "SELECT * FROM users WHERE user_name=?";
         stmt = conn.prepareStatement(sql);
         stmt.setObject(1, username);
         ResultSet rst = stmt.executeQuery();
         if (rst.next()) {
             return new User(
-                    rst.getString(1),
-                    rst.getString(2),
-                    rst.getString(3),
-                    rst.getString(4),
-                    rst.getString(5),
-                    rst.getString(6),
-                    rst.getString(7),
-                    rst.getString(8)
+                    rst.getString("user_name"),
+                    rst.getString("password"),
+                    rst.getString("uname"),
+                    rst.getString("date_of_birth"),
+                    rst.getString("gender"),
+                    rst.getString("address"),
+                    rst.getString("nic"),
+                    rst.getString("contact")
             );
         }
         return null;

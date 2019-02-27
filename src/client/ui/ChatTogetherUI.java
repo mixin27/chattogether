@@ -7,28 +7,72 @@ import common.model.User;
 import common.observer.ChatObserver;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 /**
  * Created by Norm on 2/25/2019.
  */
-public class ChatTogetherUI extends JFrame implements ChatObserver {
+public class ChatTogetherUI extends JFrame implements ChatObserver, ActionListener {
 
     private ChatObserver mChatObserver;
     private ChatController mChatController;
-    private String mUserName = "user";
+    private String mUserName;
+
+    private JFrame mFrame;
+    private Container mContainer;
+
+    private Font meiryoFont = new Font("Meiryo", Font.PLAIN, 14);
+    private Border blankBorder = BorderFactory.createEmptyBorder(10, 10, 20, 10);//top,r,b,l
+
+    private JTextArea txtArea;
+    JPanel textPanel;
+    JPanel inputPanel;
+    JPanel userPanel;
+    JPanel clientPanel;
+
+    private DefaultListModel<String> listModel = new DefaultListModel<>();
+    private JList<String> userLists;
+
+    private JTextField txtMessage;
+
+    private JButton btnSendMessage;
 
 
     public ChatTogetherUI() {
+//        setUserName(userName);
 
         init();
+
+        mFrame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                try {
+                    mChatController.removeChatObserver(mChatObserver);
+                    mChatController.updateClientLists();
+                } catch (RemoteException e1) {
+                    e1.printStackTrace();
+                }
+
+                System.exit(0);
+            }
+        });
 
     }
 
     private void init() {
+
+        // setLookAndFeel();
+
         try {
             mChatObserver = new ChatObserverImpl(this);
             mChatController = ServerConnector.getInstance().getController();
@@ -42,6 +86,104 @@ public class ChatTogetherUI extends JFrame implements ChatObserver {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
+
+        mFrame = new JFrame("Chat Together");
+        mContainer = getContentPane();
+
+        JPanel outerPanel = new JPanel(new BorderLayout());
+
+        outerPanel.add(getTextPanel(), BorderLayout.NORTH);
+        outerPanel.add(getInputPanel(), BorderLayout.CENTER);
+
+        mContainer.setLayout(new BorderLayout());
+        mContainer.add(outerPanel, BorderLayout.CENTER);
+        mContainer.add(getUserListPanel(), BorderLayout.EAST);
+
+        mFrame.add(mContainer);
+        mFrame.pack();
+        mFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        mFrame.setLocation(150, 150);
+        mFrame.setVisible(true);
+    }
+
+    private JPanel getUserListPanel() {
+
+        userPanel = new JPanel(new BorderLayout());
+
+        String title = "Active User";
+
+        JLabel userLable = new JLabel(title, JLabel.CENTER);
+        userPanel.add(userLable, BorderLayout.NORTH);
+        userLable.setFont(new Font("Meiryo", Font.PLAIN, 16));
+
+        setClientPanel();
+
+        return userPanel;
+    }
+
+    private void setClientPanel() {
+        clientPanel = new JPanel(new BorderLayout());
+        userLists = new JList<>(listModel);
+        userLists.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        userLists.setFont(meiryoFont);
+
+        JScrollPane scrollPane = new JScrollPane(userLists);
+        clientPanel.add(scrollPane, BorderLayout.CENTER);
+        userPanel.add(clientPanel, BorderLayout.CENTER);
+    }
+
+    private JPanel getInputPanel() {
+
+        inputPanel = new JPanel(new GridLayout(1, 2, 5, 5));
+        inputPanel.setBorder(blankBorder);
+
+        txtMessage = new JTextField();
+        txtMessage.setFont(meiryoFont);
+        inputPanel.add(txtMessage);
+
+        btnSendMessage = new JButton("Send");
+        btnSendMessage.setFont(meiryoFont);
+        btnSendMessage.addActionListener(this);
+        inputPanel.add(btnSendMessage);
+
+        return inputPanel;
+    }
+
+    private void setLookAndFeel() {
+        try {
+            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private JPanel getTextPanel() {
+
+        String welcome = "Welcome to Chat Together";
+        txtArea = new JTextArea(welcome, 14, 34);
+        txtArea.setMargin(new Insets(10, 10, 10, 10));
+        txtArea.setFont(meiryoFont);
+        txtArea.setLineWrap(true);
+        txtArea.setWrapStyleWord(true);
+        txtArea.setEditable(false);
+
+        JScrollPane scrollPane = new JScrollPane(txtArea);
+        textPanel = new JPanel();
+        textPanel.add(scrollPane);
+        textPanel.setFont(new Font("Meiryo", Font.PLAIN, 14));
+
+        return textPanel;
     }
 
     public void setUserName(String userName) {
@@ -64,7 +206,12 @@ public class ChatTogetherUI extends JFrame implements ChatObserver {
 
     @Override
     public boolean update(String username, String message) throws RemoteException {
-        return false;
+
+        if (!this.mUserName.equals(username))
+            txtArea.append("\n" + username + " : " + message);
+        else
+            txtArea.append("\n" + mUserName + " : " + message);
+        return true;
     }
 
     @Override
@@ -79,10 +226,41 @@ public class ChatTogetherUI extends JFrame implements ChatObserver {
 
     @Override
     public boolean updateUI(ArrayList<String> clientLists) throws RemoteException {
-        return false;
+
+        for (String client : clientLists) {
+            if (client.equals(this.mUserName))
+                continue;
+
+            User user;
+            try {
+                user = mChatController.get(client);
+                listModel.addElement(user.getName());
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return true;
     }
 
     public ChatObserver getChatObserver() {
         return mChatObserver;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == btnSendMessage) {
+            try {
+                if (txtMessage.getText().trim().equals(""))
+                    return;
+
+                mChatController.notifyAllClients(mUserName, txtMessage.getText().trim());
+            } catch (RemoteException e1) {
+                e1.printStackTrace();
+            }
+
+            txtMessage.setText("");
+            txtMessage.requestFocus();
+        }
     }
 }

@@ -1,5 +1,6 @@
 package test;
 
+import client.ui.ChatTogetherLoginUI;
 import client.ui.ChatTogetherRegisterUI;
 
 /**
@@ -8,7 +9,7 @@ import client.ui.ChatTogetherRegisterUI;
 public class UITest {
 
     public static void main(String[] args) {
-        new ChatTogetherRegisterUI();
+        new ChatTogetherLoginUI();
     }
 
 }
