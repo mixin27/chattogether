@@ -25,13 +25,9 @@ public class ChatTogetherLoginUI extends JFrame implements ActionListener {
     private ChatTogetherUI mChatController;
 
     private JFrame mLoginFrame;
-    private Container mContainer;
-    private JPanel mLoginMainPanel;
 
-    JTextField txtUserName;
-    JPasswordField txtPassword;
-
-    private JButton btnLogin;
+    private JTextField txtUserName;
+    private JPasswordField txtPassword;
 
     public ChatTogetherLoginUI() {
         init();
@@ -70,13 +66,15 @@ public class ChatTogetherLoginUI extends JFrame implements ActionListener {
     private void init() {
 
         mLoginFrame = new JFrame("Chat Together");
-        mContainer = getContentPane();
-        mLoginMainPanel = new JPanel(new BorderLayout());
+        Container mContainer = getContentPane();
+        JPanel mLoginMainPanel = new JPanel(new BorderLayout());
         mLoginMainPanel.add(getLoginPanel(), BorderLayout.CENTER);
+
+        mContainer.add(mLoginMainPanel);
 
         mLoginFrame.setLayout(new BorderLayout());
         mLoginFrame.setSize(640, 320);
-        mLoginFrame.add(mLoginMainPanel, BorderLayout.CENTER);
+        mLoginFrame.add(mContainer, BorderLayout.CENTER);
         mLoginFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
         mLoginFrame.setLocation(150, 150);
         mLoginFrame.setVisible(true);
@@ -99,7 +97,7 @@ public class ChatTogetherLoginUI extends JFrame implements ActionListener {
         txtPassword = new JPasswordField();
         txtPassword.setBounds(300, 110, 200, 30);
 
-        btnLogin = new JButton("Login");
+        JButton btnLogin = new JButton("Login");
         btnLogin.setBounds(150, 160, 100, 30);
         btnLogin.addActionListener(this);
         btnLogin.setActionCommand("LOGIN");
@@ -149,6 +147,7 @@ public class ChatTogetherLoginUI extends JFrame implements ActionListener {
                         });
                         mChatController.show();
                         mLoginFrame.hide();
+                        mLoginFrame.dispose();
                     } else {
                         showError("You are logged in from another device");
                     }

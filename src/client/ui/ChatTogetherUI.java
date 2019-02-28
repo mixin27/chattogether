@@ -90,39 +90,75 @@ public class ChatTogetherUI extends JFrame implements ChatObserver, ActionListen
         mFrame = new JFrame("Chat Together");
         mContainer = getContentPane();
 
-        JPanel outerPanel = new JPanel(new BorderLayout());
+//        JPanel outerPanel1 = new JPanel(new BorderLayout());
+//        outerPanel1.add(getTextPanel(), BorderLayout.NORTH);
+//        outerPanel1.add(getInputPanel(), BorderLayout.CENTER);
+//
+//        JPanel outerPanel2 = new JPanel(new BorderLayout());
+//        outerPanel2.add(getUserListPanel(), BorderLayout.NORTH);
+//        outerPanel2.add(makeButtonPanel(), BorderLayout.SOUTH);
+//
+//        mContainer.setLayout(new BorderLayout());
+//        mContainer.add(outerPanel1, BorderLayout.CENTER);
+//        mContainer.add(outerPanel2, BorderLayout.EAST);
 
-        outerPanel.add(getTextPanel(), BorderLayout.NORTH);
-        outerPanel.add(getInputPanel(), BorderLayout.CENTER);
-
-        mContainer.setLayout(new BorderLayout());
-        mContainer.add(outerPanel, BorderLayout.CENTER);
-        mContainer.add(getUserListPanel(), BorderLayout.EAST);
+        mContainer.add(BorderLayout.SOUTH, getFooterPanel());
+        mContainer.add(BorderLayout.CENTER, getContentPanel());
 
         mFrame.add(mContainer);
-        mFrame.pack();
+        mFrame.setSize(640, 480);
         mFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
         mFrame.setLocation(150, 150);
         mFrame.setVisible(true);
     }
 
+    // Footer Panel
+    // TextField - to enter message
+    // Button - to send message
+    private JPanel getFooterPanel() {
+        JPanel panel = new JPanel();
+        JLabel lbl = new JLabel("Enter your message");
+        txtMessage = new JTextField(20);
+        txtMessage.setFont(meiryoFont);
+
+        btnSendMessage = new JButton("Send");
+        btnSendMessage.addActionListener(this);
+
+        panel.add(lbl);
+        panel.add(txtMessage);
+        panel.add(btnSendMessage);
+        return  panel;
+    }
+
+    // Content Panel
+    private JPanel getContentPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+
+        String welcome = "Start conversation:";
+        txtArea = new JTextArea(welcome, 14, 34);
+        //txtArea.setMargin(new Insets(10, 10, 10, 10));
+        txtArea.setFont(meiryoFont);
+        txtArea.setLineWrap(true);
+        txtArea.setWrapStyleWord(true);
+        txtArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(txtArea);
+        panel.add(BorderLayout.CENTER, scrollPane);
+        panel.add(BorderLayout.EAST, getUserListPanel());
+
+        return panel;
+    }
+
     private JPanel getUserListPanel() {
 
-        userPanel = new JPanel(new BorderLayout());
+        JPanel userPanel = new JPanel(new BorderLayout());
 
         String title = "Active User";
 
         JLabel userLable = new JLabel(title, JLabel.CENTER);
         userPanel.add(userLable, BorderLayout.NORTH);
-        userLable.setFont(new Font("Meiryo", Font.PLAIN, 16));
+        userLable.setFont(new Font("Meiryo", Font.PLAIN, 14));
 
-        setClientPanel();
-
-        return userPanel;
-    }
-
-    private void setClientPanel() {
-        clientPanel = new JPanel(new BorderLayout());
+        JPanel clientPanel = new JPanel(new BorderLayout());
         userLists = new JList<>(listModel);
         userLists.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         userLists.setFont(meiryoFont);
@@ -130,23 +166,8 @@ public class ChatTogetherUI extends JFrame implements ChatObserver, ActionListen
         JScrollPane scrollPane = new JScrollPane(userLists);
         clientPanel.add(scrollPane, BorderLayout.CENTER);
         userPanel.add(clientPanel, BorderLayout.CENTER);
-    }
 
-    private JPanel getInputPanel() {
-
-        inputPanel = new JPanel(new GridLayout(1, 2, 5, 5));
-        inputPanel.setBorder(blankBorder);
-
-        txtMessage = new JTextField();
-        txtMessage.setFont(meiryoFont);
-        inputPanel.add(txtMessage);
-
-        btnSendMessage = new JButton("Send");
-        btnSendMessage.setFont(meiryoFont);
-        btnSendMessage.addActionListener(this);
-        inputPanel.add(btnSendMessage);
-
-        return inputPanel;
+        return userPanel;
     }
 
     private void setLookAndFeel() {
@@ -166,24 +187,6 @@ public class ChatTogetherUI extends JFrame implements ChatObserver, ActionListen
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-    }
-
-    private JPanel getTextPanel() {
-
-        String welcome = "Welcome to Chat Together";
-        txtArea = new JTextArea(welcome, 14, 34);
-        txtArea.setMargin(new Insets(10, 10, 10, 10));
-        txtArea.setFont(meiryoFont);
-        txtArea.setLineWrap(true);
-        txtArea.setWrapStyleWord(true);
-        txtArea.setEditable(false);
-
-        JScrollPane scrollPane = new JScrollPane(txtArea);
-        textPanel = new JPanel();
-        textPanel.add(scrollPane);
-        textPanel.setFont(new Font("Meiryo", Font.PLAIN, 14));
-
-        return textPanel;
     }
 
     public void setUserName(String userName) {
@@ -208,9 +211,9 @@ public class ChatTogetherUI extends JFrame implements ChatObserver, ActionListen
     public boolean update(String username, String message) throws RemoteException {
 
         if (!this.mUserName.equals(username))
-            txtArea.append("\n" + username + " : " + message);
+            txtArea.append("\n<" + username + "> : " + message);
         else
-            txtArea.append("\n" + mUserName + " : " + message);
+            txtArea.append("\n<" + mUserName + "> : " + message);
         return true;
     }
 
@@ -226,7 +229,7 @@ public class ChatTogetherUI extends JFrame implements ChatObserver, ActionListen
 
     @Override
     public boolean updateUI(ArrayList<String> clientLists) throws RemoteException {
-
+        listModel.clear();
         for (String client : clientLists) {
             if (client.equals(this.mUserName))
                 continue;
