@@ -33,7 +33,7 @@ public class ChatTogetherLoginUI extends JFrame implements ActionListener {
         init();
 
         initConnector();
-        // setLookAndFeel();
+        setLookAndFeel();
     }
 
     private void initConnector() {
@@ -102,12 +102,18 @@ public class ChatTogetherLoginUI extends JFrame implements ActionListener {
         btnLogin.addActionListener(this);
         btnLogin.setActionCommand("LOGIN");
 
+        JButton btnNew = new JButton("CREATE NEW ACCOUNT");
+        btnNew.setBounds(300, 160, 200, 30);
+        btnNew.setActionCommand("NEW");
+        btnNew.addActionListener(this);
+
         loginPanel.add(lblTitle);
         loginPanel.add(lblUserName);
         loginPanel.add(txtUserName);
         loginPanel.add(lblPassword);
         loginPanel.add(txtPassword);
         loginPanel.add(btnLogin);
+        loginPanel.add(btnNew);
 
         loginPanel.setLayout(null);
 
@@ -118,6 +124,12 @@ public class ChatTogetherLoginUI extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("LOGIN")) {
             doLogin();
+        }
+
+        if (e.getActionCommand().equals("NEW")) {
+            new ChatTogetherRegisterUI().show();
+            mLoginFrame.hide();
+            mLoginFrame.dispose();
         }
     }
 
@@ -134,6 +146,7 @@ public class ChatTogetherLoginUI extends JFrame implements ActionListener {
                     if (!mController.isReserved(username)) {
                         mChatController = new ChatTogetherUI();
                         mChatController.setUserName(username);
+                        mChatController.lblLoginUserName.setText("Login as: " + username);
                         mLoginFrame.addWindowListener(new WindowAdapter() {
                             @Override
                             public void windowClosing(WindowEvent e) {

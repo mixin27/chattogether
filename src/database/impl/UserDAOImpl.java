@@ -30,21 +30,19 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public boolean add(User user) throws SQLException {
+
+        System.out.println("User: " + user.toString());
+
         String sql = "INSERT INTO users " +
-                "(user_name, password, uname, date_of_birth, gender, address, nic, contact, created_at, modified_at) " +
-                "VALUES (?,?,?,?,?,?,?,?,?,?)";
+                "(user_name, password, uname, gender, address) " +
+                "VALUES (?,?,?,?,?)";
         stmt = conn.prepareStatement(sql);
-        stmt.setObject(1, user.getUsername());
-        stmt.setObject(2, user.getPassword());
-        stmt.setObject(3, user.getName());
-        stmt.setObject(4, user.getDob());
-        stmt.setObject(5, user.getGender());
-        stmt.setObject(6, user.getAddress());
-        stmt.setObject(7, user.getNic());
-        stmt.setObject(8, user.getContact());
-        stmt.setString(9, "now()");
-        stmt.setString(10, "now()");
-        return stmt.executeUpdate() > 0;
+        stmt.setString(1, user.getUsername());
+        stmt.setString(2, user.getPassword());
+        stmt.setString(3, user.getName());
+        stmt.setString(4, user.getGender());
+        stmt.setString(5, user.getAddress());
+        return (stmt.executeUpdate() > 0);
     }
 
     @Override
@@ -99,11 +97,8 @@ public class UserDAOImpl implements UserDAO {
                     rst.getString("user_name"),
                     rst.getString("password"),
                     rst.getString("uname"),
-                    rst.getString("date_of_birth"),
                     rst.getString("gender"),
-                    rst.getString("address"),
-                    rst.getString("nic"),
-                    rst.getString("contact")
+                    rst.getString("address")
             );
         }
         return null;

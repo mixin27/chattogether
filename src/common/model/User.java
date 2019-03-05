@@ -24,6 +24,14 @@ public class User implements Serializable {
         this.password = password;
     }
 
+    public User(String username, String password, String name, String gender, String address) {
+        this.username = username;
+        this.password = password;
+        this.name = name;
+        this.gender = gender;
+        this.address = address;
+    }
+
     public User(String username, String password, String name, String dob, String gender, String address, String nic, String contact) {
         this.username = username;
         this.password = password;
@@ -97,6 +105,10 @@ public class User implements Serializable {
 
     public void setNic(String nic) {
         this.nic = nic;
+    }
+
+    public String toString() {
+        return "[" + getUsername() + "," + getPassword() + "," + getName() + "," + getAddress() + "]";
     }
 
 }

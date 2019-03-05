@@ -35,11 +35,6 @@ public class ChatTogetherUI extends JFrame implements ChatObserver, ActionListen
     private Border blankBorder = BorderFactory.createEmptyBorder(10, 10, 20, 10);//top,r,b,l
 
     private JTextArea txtArea;
-    JPanel textPanel;
-    JPanel inputPanel;
-    JPanel userPanel;
-    JPanel clientPanel;
-
     private DefaultListModel<String> listModel = new DefaultListModel<>();
     private JList<String> userLists;
 
@@ -47,11 +42,17 @@ public class ChatTogetherUI extends JFrame implements ChatObserver, ActionListen
 
     private JButton btnSendMessage;
 
+    JLabel lblLoginUserName;
+
 
     public ChatTogetherUI() {
 //        setUserName(userName);
 
-        init();
+        try {
+            init();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
 
         mFrame.addWindowListener(new WindowAdapter() {
             @Override
@@ -69,7 +70,7 @@ public class ChatTogetherUI extends JFrame implements ChatObserver, ActionListen
 
     }
 
-    private void init() {
+    private void init() throws RemoteException {
 
         // setLookAndFeel();
 
@@ -90,18 +91,8 @@ public class ChatTogetherUI extends JFrame implements ChatObserver, ActionListen
         mFrame = new JFrame("Chat Together");
         mContainer = getContentPane();
 
-//        JPanel outerPanel1 = new JPanel(new BorderLayout());
-//        outerPanel1.add(getTextPanel(), BorderLayout.NORTH);
-//        outerPanel1.add(getInputPanel(), BorderLayout.CENTER);
-//
-//        JPanel outerPanel2 = new JPanel(new BorderLayout());
-//        outerPanel2.add(getUserListPanel(), BorderLayout.NORTH);
-//        outerPanel2.add(makeButtonPanel(), BorderLayout.SOUTH);
-//
-//        mContainer.setLayout(new BorderLayout());
-//        mContainer.add(outerPanel1, BorderLayout.CENTER);
-//        mContainer.add(outerPanel2, BorderLayout.EAST);
-
+        lblLoginUserName = new JLabel();
+        mContainer.add(BorderLayout.NORTH, lblLoginUserName);
         mContainer.add(BorderLayout.SOUTH, getFooterPanel());
         mContainer.add(BorderLayout.CENTER, getContentPanel());
 
